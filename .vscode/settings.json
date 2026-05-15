@@ -1,0 +1,14 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.tabSize": 2,
+  "typescript.preferences.quoteStyle": "single",
+  "typescript.suggest.autoImports": true,
+  "files.exclude": {
+    "node_modules": true,
+    "dist": true
+  },
+  "emmet.includeLanguages": {
+    "html": "html"
+  }
+}
