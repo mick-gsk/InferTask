@@ -1,0 +1,121 @@
+name: Arbeitsauftrag
+description: Strukturierter Arbeitsauftrag für manuelle Implementierung (Solo-Entwickler)
+title: "[Phase X.Y] "
+labels: ["task"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Dieses Template wird für jeden konkreten Implementierungsschritt in InferTask genutzt.
+        Jeder Auftrag ist eigenständig abarbeitbar — ohne Rückfragen, ohne Annahmen.
+
+  - type: textarea
+    id: goal
+    attributes:
+      label: Ziel
+      description: Ein Satz. Was ist wahr, wenn dieser Auftrag abgeschlossen ist?
+      placeholder: "Beispiel: Tasks können per Klick auf den Button in #task-list eingefügt und sofort angezeigt werden."
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: Welche Dateien sind betroffen? Was ist explizit ausgeschlossen?
+      placeholder: |
+        In Scope:
+        - frontend/index.html
+        - frontend/src/main.ts
+
+        Out of Scope:
+        - CSS-Änderungen
+        - localStorage
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: Messbare Checkliste. Jeder Punkt muss manuell prüfbar sein.
+      placeholder: |
+        - [ ] Klick auf Button fügt Task in #task-list ein
+        - [ ] Eingabefeld wird nach dem Hinzufügen geleert
+        - [ ] Leere Eingabe erzeugt keinen Task
+    validations:
+      required: true
+
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verifikation
+      description: Genaue Schritte um zu bestätigen dass der Auftrag fertig ist.
+      placeholder: |
+        1. index.html im Browser öffnen
+        2. Text eingeben und Button klicken → Task erscheint in der Liste
+        3. Leeres Feld abschicken → kein neuer Task
+        4. Browser-Konsole öffnen (F12) → kein Fehler sichtbar
+    validations:
+      required: true
+
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Constraints
+      description: Regeln die beim Umsetzen eingehalten werden müssen.
+      placeholder: |
+        - Kein Copy-Paste von fertigem Code
+        - Kein jQuery oder externe Bibliotheken
+        - TypeScript-Typen müssen korrekt angegeben sein
+    validations:
+      required: true
+
+  - type: textarea
+    id: non_goals
+    attributes:
+      label: Non-Goals
+      description: Was darf in diesem Schritt nicht passieren?
+      placeholder: |
+        - Kein Styling in diesem Schritt
+        - Keine Persistenz (localStorage) in diesem Schritt
+    validations:
+      required: true
+
+  - type: textarea
+    id: hints
+    attributes:
+      label: Hints
+      description: Relevante Funktionen, Konzepte oder Erklärungen die den Einstieg erleichtern.
+      placeholder: |
+        - `document.getElementById()` gibt das Element oder null zurück — immer prüfen
+        - `element.appendChild()` hängt ein neues Kind-Element ans Ende
+        - TypeScript-Interface für Task ist bereits in main.ts definiert
+    validations:
+      required: false
+
+  - type: dropdown
+    id: difficulty
+    attributes:
+      label: Zeitschätzung
+      options:
+        - "~15 min"
+        - "~30 min"
+        - "~1 Stunde"
+        - "~2 Stunden"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Phase
+      options:
+        - "Phase 1 — Basis CRUD"
+        - "Phase 2 — Backend + Ollama"
+        - "Phase 3 — Intent Compiler"
+        - "Phase 4 — Goal-to-Execution"
+        - "Phase 5 — Agentisch"
+        - "Phase 6 — Memory"
+    validations:
+      required: true
