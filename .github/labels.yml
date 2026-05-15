@@ -1,0 +1,81 @@
+# Label-Definitionen für InferTask
+# Manuell pflegen: GitHub → Settings → Labels
+
+# --- Phasen ---
+- name: phase-1
+  color: "1d76db"
+  description: "Phase 1 — Basis CRUD"
+
+- name: phase-2
+  color: "0052cc"
+  description: "Phase 2 — Backend + Ollama"
+
+- name: phase-3
+  color: "003d99"
+  description: "Phase 3 — Intent Compiler"
+
+- name: phase-4
+  color: "002b75"
+  description: "Phase 4 — Goal-to-Execution"
+
+- name: phase-5
+  color: "001a52"
+  description: "Phase 5 — Agentisch"
+
+- name: phase-6
+  color: "000d30"
+  description: "Phase 6 — Memory"
+
+# --- Bereiche ---
+- name: frontend
+  color: "a2eeef"
+  description: "TypeScript / HTML / CSS"
+
+- name: backend
+  color: "bfd4f2"
+  description: "Node.js API"
+
+- name: llm
+  color: "d4c5f9"
+  description: "LLM-Integration / Ollama / Prompts"
+
+- name: typescript
+  color: "c5def5"
+  description: "TypeScript-spezifisch"
+
+- name: css
+  color: "e4d9f7"
+  description: "Styling"
+
+- name: html
+  color: "fef2c0"
+  description: "HTML-Struktur"
+
+- name: db
+  color: "f9d0c4"
+  description: "Datenbank / SQLite / localStorage"
+
+# --- Status ---
+- name: task
+  color: "0e8a16"
+  description: "Konkreter Implementierungsauftrag"
+
+- name: review
+  color: "fbca04"
+  description: "Review- oder Test-Schritt"
+
+- name: bug
+  color: "d73a4a"
+  description: "Etwas funktioniert nicht wie erwartet"
+
+- name: blocked
+  color: "b60205"
+  description: "Blockiert durch ein anderes Issue"
+
+- name: docs
+  color: "c5def5"
+  description: "Dokumentation"
+
+- name: chore
+  color: "e4e4e4"
+  description: "Infrastruktur / Konfiguration"
