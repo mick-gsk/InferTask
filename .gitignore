@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Build Output
+dist/
+build/
+
+# Umgebungsvariablen
+.env
+.env.local
+
+# Datenbank
+*.db
+*.sqlite
+
+# Betriebssystem
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/settings.json
+.idea/
+
+# TypeScript
+*.tsbuildinfo
