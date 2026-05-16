@@ -3,13 +3,22 @@ name: CI
 on:
   push:
     branches: [main]
+    paths:
+      - 'frontend/src/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
+      - 'eslint.config.js'
   pull_request:
     branches: [main]
 
+# CI läuft nur wenn package-lock.json existiert (ab Phase 2)
 jobs:
   check:
     name: Typecheck + Lint + Format
     runs-on: ubuntu-latest
+    # Nur ausführen wenn package-lock.json vorhanden
+    if: hashFiles('package-lock.json') != ''
 
     steps:
       - name: Checkout
