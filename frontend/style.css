@@ -7,87 +7,199 @@
 
 /* === Variablen === */
 :root {
-  --bg: #f9f9f9;
+  --bg: #f4f4f8;
   --surface: #ffffff;
   --primary: #4f46e5;
   --primary-hover: #4338ca;
-  --text: #1a1a1a;
+  --danger: #ef4444;
+  --danger-hover: #dc2626;
+  --success: #22c55e;
+  --text: #1a1a2e;
   --muted: #6b7280;
   --border: #e5e7eb;
-  --radius: 8px;
+  --radius: 10px;
+  --shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
 
 /* === Basis === */
 body {
-  font-family: system-ui, sans-serif;
+  font-family: system-ui, -apple-system, sans-serif;
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
-  padding: 2rem;
+  padding: 2rem 1rem;
+}
+
+.app {
+  max-width: 620px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* === Header === */
+header {
+  text-align: center;
 }
 
 header h1 {
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin-bottom: 2rem;
+  font-size: 2rem;
+  font-weight: 800;
   color: var(--primary);
+  letter-spacing: -0.5px;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-top: 0.25rem;
 }
 
 /* === Eingabe === */
 #input-section {
   display: flex;
   gap: 0.5rem;
-  margin-bottom: 2rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.5rem;
+  box-shadow: var(--shadow);
 }
 
 #task-input {
   flex: 1;
-  padding: 0.6rem 1rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  padding: 0.5rem 0.75rem;
+  border: none;
   font-size: 1rem;
   outline: none;
-  transition: border-color 0.2s;
+  background: transparent;
+  color: var(--text);
 }
 
-#task-input:focus {
-  border-color: var(--primary);
+#task-input::placeholder {
+  color: var(--muted);
 }
 
-button {
-  padding: 0.6rem 1.2rem;
+#add-btn {
+  padding: 0.5rem 1.1rem;
   background: var(--primary);
   color: white;
   border: none;
-  border-radius: var(--radius);
-  font-size: 1rem;
+  border-radius: 7px;
+  font-size: 0.95rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.15s;
+  white-space: nowrap;
 }
 
-button:hover {
+#add-btn:hover {
   background: var(--primary-hover);
 }
 
-/* === Task-Liste === */
-#task-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+/* === Abschnitte === */
+.section-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 0.6rem;
 }
 
-/* Platzhalter — wird später per TS befüllt */
+/* === Task-Liste === */
+#task-list,
+#completed-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
 .task-item {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 0.8rem 1rem;
+  padding: 0.75rem 1rem;
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  box-shadow: var(--shadow);
+  transition: opacity 0.2s;
 }
 
-.task-item.completed {
-  opacity: 0.5;
+.task-item:hover {
+  border-color: #d1d5db;
+}
+
+.task-title {
+  flex: 1;
+  font-size: 0.975rem;
+  line-height: 1.4;
+}
+
+.task-item.completed .task-title {
   text-decoration: line-through;
+  color: var(--muted);
+}
+
+/* === Buttons === */
+.check-btn,
+.delete-btn {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, transform 0.1s;
+  flex-shrink: 0;
+}
+
+.check-btn {
+  background: #f0fdf4;
+  color: var(--success);
+  border: 1px solid #bbf7d0;
+}
+
+.check-btn:hover {
+  background: #dcfce7;
+  transform: scale(1.05);
+}
+
+.task-item.completed .check-btn {
+  background: #f0fdf4;
+  color: var(--success);
+}
+
+.delete-btn {
+  background: #fef2f2;
+  color: var(--danger);
+  border: 1px solid #fecaca;
+}
+
+.delete-btn:hover {
+  background: #fee2e2;
+  transform: scale(1.05);
+}
+
+/* === Leer-Hinweis === */
+.empty-hint {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+  padding: 2rem 0;
+}
+
+/* === Footer === */
+footer {
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--muted);
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
 }

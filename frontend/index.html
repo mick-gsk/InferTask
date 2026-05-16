@@ -8,22 +8,39 @@
 </head>
 <body>
 
-  <header>
-    <h1>InferTask</h1>
-  </header>
+  <div class="app">
+    <header>
+      <h1>InferTask</h1>
+      <p class="subtitle">Deine Aufgaben, lokal und privat.</p>
+    </header>
 
-  <main>
-    <!-- Eingabebereich -->
-    <section id="input-section">
-      <input type="text" id="task-input" placeholder="Was willst du erledigen?" />
-      <button id="add-btn">Hinzufügen</button>
-    </section>
+    <main>
+      <section id="input-section">
+        <input
+          type="text"
+          id="task-input"
+          placeholder="Was willst du erledigen?"
+          autocomplete="off"
+        />
+        <button id="add-btn">+ Hinzufügen</button>
+      </section>
 
-    <!-- Aufgabenliste -->
-    <section id="task-list">
-      <!-- Tasks werden hier per TypeScript eingefügt -->
-    </section>
-  </main>
+      <section id="tasks-section">
+        <h2 class="section-title">Offen</h2>
+        <ul id="task-list"></ul>
+        <p id="empty-hint" class="empty-hint">Noch keine Aufgaben — leg los!</p>
+      </section>
+
+      <section id="completed-section" hidden>
+        <h2 class="section-title">Erledigt</h2>
+        <ul id="completed-list"></ul>
+      </section>
+    </main>
+
+    <footer>
+      <span>InferTask — Phase 1</span>
+    </footer>
+  </div>
 
   <script src="src/main.js"></script>
 </body>
