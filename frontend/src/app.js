@@ -1,61 +1,68 @@
-const taskInput = document.getElementById("task-input");
-const addTaskBtn = document.getElementById("add-task-btn");
 const taskList = document.getElementById("task-list");
 const completedList = document.getElementById("completed-list");
+const modal = document.getElementById("task-modal");
+const modalTitle = document.getElementById("modal-task-title");
+const modalDescription = document.getElementById("modal-task-description");
 
-const STORAGE_KEY = "myTasks";
+function openModal() {
+    modal.classList.remove("hidden");
+    modalTitle.focus();
+}
 
-addTaskBtn.addEventListener("click", addTask);
-document.addEventListener("DOMContentLoaded", loadTasks);
+function closeModal() {
+    modal.classList.add("hidden");
+    modalTitle.value = "";
+    modalDescription.value = "";
+}
 
-function addTask() {
-    const taskText = taskInput.value.trim();
+document.getElementById("new-task-btn").addEventListener("click", openModal);
+document.getElementById("cancel-task-btn").addEventListener("click", closeModal);
+document.getElementById("modal-overlay").addEventListener("click", closeModal);
 
-    if (taskText === "") {
-        return;
-    }
+document.getElementById("save-task-btn").addEventListener("click", function () {
+    const title = modalTitle.value.trim();
+    if (title === "") return;
+    const description = modalDescription.value.trim();
+    addTask(title, description);
+    closeModal();
+});
 
-
-    const taskItem = createTaskElement(taskText)
+function addTask(title, description) {
+    const taskItem = document.createElement("div");
     taskItem.className = "task-item";
 
     const checkButton = document.createElement("button");
     checkButton.className = "check-circle";
     checkButton.setAttribute("aria-label", "Aufgabe als erledigt markieren");
 
-    const taskContent =  document.createElement("div");
+    const taskContent = document.createElement("div");
     taskContent.className = "task-content";
 
-    const taskTitle = document.createElement("h2");
-    taskTitle.textContent = taskText;
+    const taskTitleEl = document.createElement("h2");
+    taskTitleEl.textContent = title;
 
-    const taskDescription = document.createElement("p");
-    taskDescription.textContent = "Neu hinzugefügte Aufgabe";
+    const taskDescEl = document.createElement("p");
+    taskDescEl.textContent = description || "";
 
     const deleteButton = document.createElement("button");
     deleteButton.className = "delete-btn";
-    deleteButton.setAttribute("aria-label", "Aufgabe Löschen");
-    deleteButton.textContent = "x";
+    deleteButton.setAttribute("aria-label", "Aufgabe löschen");
+    deleteButton.textContent = "×";
 
-    deleteButton.addEventListener("click", function() {
+    deleteButton.addEventListener("click", function () {
         taskItem.remove();
     });
 
-    checkButton.addEventListener("click", function() {
+    checkButton.addEventListener("click", function () {
         moveToCompleted(taskItem, checkButton, deleteButton);
     });
 
-    taskContent.appendChild(taskTitle);
-    taskContent.appendChild(taskDescription);
-
+    taskContent.appendChild(taskTitleEl);
+    taskContent.appendChild(taskDescEl);
     taskItem.appendChild(checkButton);
     taskItem.appendChild(taskContent);
     taskItem.appendChild(deleteButton);
-
     taskList.appendChild(taskItem);
-
-    taskInput.value = "";
-    taskInput.focus();
 }
 
 function moveToCompleted(taskItem, checkButton, deleteButton) {
@@ -63,6 +70,5 @@ function moveToCompleted(taskItem, checkButton, deleteButton) {
     checkButton.classList.add("done");
     checkButton.setAttribute("aria-label", "Erledigte Aufgabe");
     deleteButton.remove();
-
     completedList.appendChild(taskItem);
 }

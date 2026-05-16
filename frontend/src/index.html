@@ -1,94 +1,61 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="de">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="stylesheet" href="styles.css" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Tasks</title>
-  </head>
-  <body>
-    <div class="app-layout">
-      <aside class="sidebar">
+    <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+<div class="app-layout">
+    <aside class="sidebar">
         <div class="logo">My Tasks</div>
-
         <button id="new-task-btn" class="new-task-btn">+ Eintragen</button>
-
         <nav class="menu">
-          <a class="menu-item active" href="#">Alle Aufgaben</a>
-          <a class="menu-item" href="#">Markiert</a>
+            <a class="menu-item active" href="#">Alle Aufgaben</a>
+            <a class="menu-item" href="#">Markiert</a>
         </nav>
-
         <div class="list-block">
-          <p class="list-title">Listen</p>
-          <a class="list-item" href="#">Persönlich</a>
-          <a class="list-item" href="#">Lernen</a>
-          <a class="list-item" href="#">Projekte</a>
-          <a class="list-item" href="#">Heute</a>
+            <p class="list-title">Listen</p>
+            <a class="list-item" href="#">Persönlich</a>
+            <a class="list-item" href="#">Lernen</a>
+            <a class="list-item" href="#">Projekte</a>
+            <a class="list-item" href="#">Heute</a>
         </div>
-      </aside>
+    </aside>
 
-      <main class="content">
+    <main class="content">
         <header class="page-header">
-          <h1>Alle Aufgaben</h1>
-          <p>Eine simple Aufgabenübersicht.</p>
+            <h1>Alle Aufgaben</h1>
+            <p>Eine simple Aufgabenübersicht.</p>
         </header>
 
         <section class="task-panel">
-          <div class="task-input-row">
-            <input
-              id="task-input"
-              type="text"
-              placeholder="Aufgabe hinzufügen"
-            />
-            <button id="add-task-btn" type="button">Hinzufügen</button>
-          </div>
+            <div id="task-list" class="task-list"></div>
 
-          <button id="open-task-modal-btn" class="new-task-btn">
-            + Eintragen
-          </button>
-
-          <div id="task-modal" class="modal-hidden">
-            <div class="modal-overlay"></div>
-
-            <div class="modal-content">
-              <h2>Neue Aufgabe</h2>
-
-              <label for="modal-task-title">Titel</label>
-              <input
-                id="modal-task-title"
-                type="text"
-                placeholder="Titel der Aufgabe"
-              />
-
-              <label for="modal-task-description">Beschreibung</label>
-              <textarea
-                id="modal-task-description"
-                placeholder="Beschreibung hinzufügen"
-              ></textarea>
-
-              <div class="modal-actions">
-                <button id="cancel-task-btn" type="button">Abbrechen</button>
-                <button id="save-task-btn" type="button">Speichern</button>
-              </div>
-            </div>
-          </div>
-
-          <section class="completed-panel">
-            <h3>Erledigt</h3>
-            <div id="completed-list">
-              <div class="task-item completed">
-                <button
-                  class="check-circle done"
-                  aria-label="Erledigte Aufgabe"
-                ></button>
-                <div class="task-content"></div>
-              </div>
-            </div>
-          </section>
+            <section class="completed-panel">
+                <h3>Erledigt</h3>
+                <div id="completed-list" class="task-list"></div>
+            </section>
         </section>
-      </main>
-    </div>
+    </main>
+</div>
 
-    <script src="app.js"></script>
-  </body>
+<div id="task-modal" class="modal hidden">
+    <div class="modal-overlay" id="modal-overlay"></div>
+    <div class="modal-content">
+        <h2>Neue Aufgabe</h2>
+        <label for="modal-task-title">Titel</label>
+        <input id="modal-task-title" type="text" placeholder="Titel der Aufgabe"/>
+        <label for="modal-task-description">Beschreibung</label>
+        <textarea id="modal-task-description" placeholder="Beschreibung hinzufügen"></textarea>
+        <div class="modal-actions">
+            <button id="cancel-task-btn" type="button">Abbrechen</button>
+            <button id="save-task-btn" type="button">Speichern</button>
+        </div>
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
 </html>
