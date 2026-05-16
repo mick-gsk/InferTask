@@ -1,2 +1,27 @@
-// TODO: Projektabhängigkeiten und npm-Scripts (ab Phase 2)
-// Scripts: typecheck, lint, format, build
+{
+  "name": "to-do-app",
+  "version": "1.0.0",
+  "description": "> **Infer**enz trifft **Task** Management — eine lokale To-Do App mit integriertem LLM.",
+  "main": "eslint.config.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mick-gsk/InferTask.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/mick-gsk/InferTask/issues"
+  },
+  "homepage": "https://github.com/mick-gsk/InferTask#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
