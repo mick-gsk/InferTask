@@ -1,25 +1,15 @@
 name: CI
 
-on:
-  push:
-    branches: [main]
-    paths:
-      - 'frontend/src/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'tsconfig.json'
-      - 'eslint.config.js'
-  pull_request:
-    branches: [main]
+# CI ist ab Phase 2 aktiv (wenn package-lock.json existiert und npm install ausgeführt wurde)
+# Bis dahin ist dieser Workflow deaktiviert um fehlerhafte Runs zu vermeiden
 
-# CI läuft nur wenn package-lock.json existiert (ab Phase 2)
+on:
+  workflow_dispatch:
+
 jobs:
   check:
     name: Typecheck + Lint + Format
     runs-on: ubuntu-latest
-    # Nur ausführen wenn package-lock.json vorhanden
-    if: hashFiles('package-lock.json') != ''
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,7 +18,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
