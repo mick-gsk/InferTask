@@ -1,4 +1,4 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
 router.post("/", function (req: any, res: any) {
@@ -15,4 +15,4 @@ router.post("/", function (req: any, res: any) {
   res.status(201).json(task);
 });
 
-module.exports = router;
+export default router;
