@@ -4,6 +4,8 @@
 
 InferTask nutzt ein lokal laufendes LLM (via Ollama), um aus freiem Text strukturierte Aufgaben zu erzeugen, Ziele in Pläne zu zerlegen und den nächsten sinnvollen Schritt zu ermitteln. Keine Cloud, keine API-Kosten, volle Datenkontrolle.
 
+🌐 **Live-Demo (Phase 1):** [mick-gsk.github.io/InferTask](https://mick-gsk.github.io/InferTask/)
+
 ---
 
 ## Stack
@@ -71,7 +73,7 @@ InferTask/
 
 ## Status
 
-🟡 Konzept- und Aufbauphase
+🟡 Phase 1 — Basis CRUD in Arbeit
 
 ---
 
