@@ -2,6 +2,8 @@
 // Compiled-equivalent: TypeScript-Logik als ES2020 JavaScript
 // Wird durch main.ts ersetzt sobald ein Build-Step eingerichtet ist (Phase 2)
 
+'use strict';
+
 // === State ===
 let tasks = [];
 
@@ -25,9 +27,8 @@ function saveTasks() {
 
 function updateEmptyState() {
   const open = tasks.filter(t => !t.completed);
-  const done = tasks.filter(t => t.completed);
   emptyHint.hidden = open.length > 0;
-  completedSection.hidden = done.length === 0;
+  completedSection.hidden = tasks.filter(t => t.completed).length === 0;
 }
 
 function renderTask(task) {
@@ -37,7 +38,7 @@ function renderTask(task) {
 
   const checkBtn = document.createElement('button');
   checkBtn.className = 'check-btn';
-  checkBtn.title = task.completed ? 'Rückgängig' : 'Erledigen';
+  checkBtn.title = task.completed ? 'Rükgängig' : 'Erledigen';
   checkBtn.textContent = task.completed ? '↺' : '✓';
   checkBtn.addEventListener('click', () => toggleTask(task.id));
 
@@ -79,9 +80,7 @@ function toggleTask(id) {
   const task = tasks.find(t => t.id === id);
   if (!task) return;
   task.completed = !task.completed;
-
-  // Element aus aktuellem Container entfernen und neu rendern
-  const el = document.querySelector(`[data-id="${id}"]`);
+  const el = document.querySelector('[data-id="' + id + '"]');
   if (el) el.remove();
   renderTask(task);
   saveTasks();
@@ -90,7 +89,7 @@ function toggleTask(id) {
 
 function deleteTask(id) {
   tasks = tasks.filter(t => t.id !== id);
-  const el = document.querySelector(`[data-id="${id}"]`);
+  const el = document.querySelector('[data-id="' + id + '"]');
   if (el) el.remove();
   saveTasks();
   updateEmptyState();
