@@ -1,10 +1,16 @@
 import express, { Request, Response } from "express";
+import cors from "cors";
 import tasksRouter from "./routes/tasks.js";
-import inferRouter from "./routes/infer.js"; // LLM-Route (#52)
+import inferRouter from "./routes/infer.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
 
+app.use(
+  cors({
+    origin: process.env.ALLOWED_ORIGIN ?? "http://localhost:5500",
+  }),
+);
 app.use(express.json());
 app.use("/api/tasks", tasksRouter);
 app.use("/api/infer", inferRouter);
