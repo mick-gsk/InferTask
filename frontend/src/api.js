@@ -1,6 +1,8 @@
 /**
  * API-Adapter für InferTask.
  * Alle Funktionen geben null zurück bei Netzwerkfehlern statt Exceptions zu werfen.
+ * Ausnahme: intentTask() gibt { task, error } zurück damit Fehlermeldungen
+ * aus dem Backend lesbar im Frontend angezeigt werden können.
  */
 
 const API_BASE = "http://localhost:3000/api";
@@ -43,9 +45,8 @@ export async function createTask(title, description) {
 
 /**
  * Sendet Freitext an den Intent Compiler.
- * Das LLM leitet daraus einen strukturierten Task ab und speichert ihn.
- * @param {string} text - Freier Eingabetext
- * @returns {Promise<Object|null>} - Task-Objekt oder null bei Fehler
+ * @param {string} text
+ * @returns {Promise<{ task: Object|null, error: string|null }>}
  */
 export async function intentTask(text) {
   try {
@@ -54,11 +55,19 @@ export async function intentTask(text) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text }),
     });
-    if (!res.ok) return null;
-    return res.json();
+    if (!res.ok) {
+      let message = `Fehler ${res.status}`;
+      try {
+        const body = await res.json();
+        if (typeof body.error === "string") message = body.error;
+      } catch { /* Body nicht parsebar */ }
+      return { task: null, error: message };
+    }
+    const task = await res.json();
+    return { task, error: null };
   } catch (e) {
     console.error("[api] intentTask:", e);
-    return null;
+    return { task: null, error: "Netzwerkfehler – läuft das Backend?" };
   }
 }
 

@@ -13,7 +13,6 @@ const llmFreetext = document.getElementById("llm-freetext");
 const modalError = document.getElementById("modal-error");
 const saveBtn = document.getElementById("save-task-btn");
 
-/** Zentraler In-Memory-State. */
 const tasks = [];
 
 // ---------------------------------------------------------------------------
@@ -51,7 +50,6 @@ document.getElementById("new-task-btn").addEventListener("click", openModal);
 document.getElementById("cancel-task-btn").addEventListener("click", closeModal);
 document.getElementById("modal-overlay").addEventListener("click", closeModal);
 
-// LLM-Toggle schaltet zwischen Modus-Bereichen um
 llmToggle.addEventListener("change", function () {
   if (llmToggle.checked) {
     manualInputs.classList.add("hidden");
@@ -69,22 +67,20 @@ saveBtn.addEventListener("click", async function () {
   hideModalError();
 
   if (llmToggle.checked) {
-    // --- LLM-Modus ---
     const text = llmFreetext.value.trim();
     if (text === "") return;
     saveBtn.disabled = true;
     saveBtn.textContent = "Analysiere...";
-    const task = await intentTask(text);
+    const { task, error } = await intentTask(text);
     saveBtn.disabled = false;
     saveBtn.textContent = "Speichern";
-    if (!task) {
-      showModalError("KI nicht erreichbar. Läuft Ollama?");
+    if (error) {
+      showModalError(error);
       return;
     }
     addTaskFromApi(task);
     closeModal();
   } else {
-    // --- Manueller Modus ---
     const title = modalTitle.value.trim();
     if (title === "") return;
     addTask(title, modalDescription.value.trim());
@@ -163,10 +159,6 @@ function addTask(title, description, completed = false) {
   (completed ? completedList : taskList).appendChild(el);
 }
 
-/**
- * Fügt einen Task hinzu der direkt vom Backend/API kommt (kein createTaskObject).
- * @param {Object} task - Vollständiges Task-Objekt mit id, title, createdAt etc.
- */
 function addTaskFromApi(task) {
   tasks.push(task);
   taskList.appendChild(renderTask(task));
