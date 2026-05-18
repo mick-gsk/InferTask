@@ -1,12 +1,13 @@
 import express, { Request, Response } from "express";
 import tasksRouter from "./routes/tasks.js";
-// TODO: import inferRouter from "./routes/infer.js" — LLM-Route (Phase 2, siehe #52)
+import inferRouter from "./routes/infer.js"; // LLM-Route (#52)
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use("/api/tasks", tasksRouter);
+app.use("/api/infer", inferRouter);
 
 app.get("/", function (_req: Request, res: Response) {
   res.send("InferTask API running");
