@@ -1,6 +1,6 @@
 ## Was wurde geändert und warum?
 
-<!-- Kurze Beschreibung der Änderung -->
+<!-- Kurze Beschreibung der Änderung und des Kontexts -->
 
 ---
 
@@ -14,26 +14,28 @@ Closes #
 
 - [ ] `feat:` — Neue Funktion
 - [ ] `fix:` — Bugfix
-- [ ] `style:` — Nur CSS
+- [ ] `refactor:` — Refactoring ohne Verhaltensänderung
+- [ ] `style:` — Nur CSS / Formatierung
 - [ ] `chore:` — Infrastruktur / Konfiguration
 - [ ] `docs:` — Nur Dokumentation
 
 ---
 
-## Manuelle Verifikation
+## Checkliste
 
-<!-- Die Verifikationsschritte aus dem Issue wurden vollständig durchgeführt -->
-
-- [ ] Alle Acceptance Criteria aus dem Issue abgehakt
-- [ ] Verifikationsschritte im Browser durchgeführt
-- [ ] Kein roter Fehler in der Browser-Konsole (F12)
-- [ ] `npm run check` lokal ausgeführt (sobald Phase 1 abgeschlossen)
+- [ ] `npm run check` lokal ausgeführt und fehlerfrei
+- [ ] Nur Dateien geändert, die im Scope des Issues stehen
+- [ ] Kein `any` in TypeScript ohne begründeten Kommentar
+- [ ] Keine externen Abhängigkeiten ohne vorherige Absprache hinzugefügt
+- [ ] Kein ungefragtes Refactoring außerhalb des Issue-Scopes
+- [ ] Dokumentation aktualisiert (falls nötig)
 
 ---
 
-## Checkliste
+## Manuelle Verifikation
 
-- [ ] Nur Dateien geändert die im **Scope** des Issues stehen
-- [ ] Kein `any` in TypeScript ohne Begründung
-- [ ] Keine externen Bibliotheken hinzugefügt
-- [ ] Kein ungefragtes Refactoring außerhalb des Issue-Scopes
+<!-- Welche Schritte hast du durchgeführt, um die Änderung zu testen? -->
+
+- [ ] Acceptance Criteria aus dem Issue vollständig abgehakt
+- [ ] Im Browser getestet (kein Fehler in der Konsole)
+- [ ] Backend-Endpunkte manuell geprüft (falls betroffen)

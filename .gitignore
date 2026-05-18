@@ -1,25 +1,49 @@
-# Dependencies
+# ── Abhängigkeiten ────────────────────────────────────────────────────────────
 node_modules/
 
-# Build Output
+# ── Build-Output ──────────────────────────────────────────────────────────────
 dist/
 build/
+out/
+*.tsbuildinfo
 
-# Umgebungsvariablen
-.env
-.env.local
-
-# Datenbank
+# ── Laufzeitdaten ─────────────────────────────────────────────────────────────
 *.db
 *.sqlite
+*.sqlite3
 
-# Betriebssystem
+# ── Umgebungsvariablen ────────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ── Cache ─────────────────────────────────────────────────────────────────────
+.eslintcache
+.prettiercache
+*.tsbuildinfo
+.cache/
+
+# ── Test-Artefakte ────────────────────────────────────────────────────────────
+coverage/
+.vitest/
+
+# ── Betriebssystem ────────────────────────────────────────────────────────────
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
-# Editor
+# ── Editor ────────────────────────────────────────────────────────────────────
 .vscode/settings.json
 .idea/
+*.swp
+*.swo
+*~
 
-# TypeScript
-*.tsbuildinfo
+# ── Logs ──────────────────────────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*

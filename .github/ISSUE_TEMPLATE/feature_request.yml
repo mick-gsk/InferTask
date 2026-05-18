@@ -1,0 +1,56 @@
+name: Feature Request
+description: Neue Funktion oder Verbesserung vorschlagen
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke für den Vorschlag. Bitte fülle alle Felder so konkret wie möglich aus.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / Motivation
+      description: Welches Problem löst dieses Feature? Was ist der Auslöser?
+      placeholder: "Als Nutzer möchte ich ..., damit ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Vorgeschlagene Lösung
+      description: Wie soll das Feature konkret funktionieren?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativen
+      description: Welche anderen Ansätze hast du in Betracht gezogen?
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Bereich
+      options:
+        - Frontend (UI/UX)
+        - Backend (API/Routes)
+        - LLM / Intent Compiler
+        - Datenbank
+        - CI/CD / Infrastruktur
+        - Dokumentation
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Voraussetzungen
+      options:
+        - label: Ich habe geprüft, dass dieses Feature nicht bereits existiert oder beantragt wurde
+          required: true
+        - label: Das Feature passt zum Leitprinzip (jede LLM-Funktion ersetzt mindestens einen manuellen Schritt)
+          required: false
