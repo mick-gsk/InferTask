@@ -7,15 +7,40 @@ import { Task } from "../types.js";
 
 const router = express.Router();
 
+const VALID_PRIORITIES = ["low", "medium", "high"] as const;
+
+/**
+ * Validiert die geparste LLM-Antwort gegen das Task-Schema.
+ * Gibt null zurück wenn alles valid ist, sonst eine deutsche Fehlermeldung.
+ */
+function validateLlmResponse(
+  raw: Record<string, unknown>,
+): string | null {
+  if (!raw.title || typeof raw.title !== "string" || (raw.title as string).trim() === "") {
+    return "Feld fehlt: title";
+  }
+  if (raw.deadline !== null && typeof raw.deadline !== "string") {
+    return "Feld fehlt: deadline";
+  }
+  if (!VALID_PRIORITIES.includes(raw.priority as typeof VALID_PRIORITIES[number])) {
+    return `Ungültige Priorität: ${String(raw.priority)}`;
+  }
+  if (!raw.category || typeof raw.category !== "string" || (raw.category as string).trim() === "") {
+    return "Feld fehlt: category";
+  }
+  return null;
+}
+
 /**
  * POST /api/intent
  * Nimmt deutschen Freitext entgegen, lässt das LLM einen strukturierten
- * Task daraus ableiten und speichert ihn in der Datenbank.
+ * Task daraus ableiten, validiert die Antwort und speichert den Task.
  *
- * Body: { text: string }
- * Response 201: Task-Objekt
- * Response 400: fehlender/leerer text
- * Response 503: Ollama nicht erreichbar
+ * Body:          { text: string }
+ * Response 201:  Task-Objekt
+ * Response 400:  fehlender/leerer text
+ * Response 422:  LLM-Antwort ungültig (Feld fehlt oder falscher Typ)
+ * Response 503:  Ollama nicht erreichbar oder ungültiges JSON
  */
 router.post("/", async function (req: Request, res: Response) {
   const { text } = req.body as { text: unknown };
@@ -32,20 +57,23 @@ router.post("/", async function (req: Request, res: Response) {
   if (raw === null) {
     return res
       .status(503)
-      .json({ error: "LLM nicht verfügbar – läuft Ollama?" });
+      .json({ error: "LLM nicht verfügbar oder ungültiges JSON – läuft Ollama?" });
+  }
+
+  const validationError = validateLlmResponse(raw);
+  if (validationError !== null) {
+    return res.status(422).json({ error: validationError });
   }
 
   const task: Task = {
     id: crypto.randomUUID(),
-    title: String(raw.title ?? "").trim(),
+    title: (raw.title as string).trim(),
     description: "",
     completed: false,
     createdAt: new Date().toISOString(),
     deadline: typeof raw.deadline === "string" ? raw.deadline : null,
-    priority: (["low", "medium", "high"].includes(raw.priority as string)
-      ? raw.priority
-      : "medium") as Task["priority"],
-    category: typeof raw.category === "string" ? raw.category : "",
+    priority: raw.priority as Task["priority"],
+    category: (raw.category as string).trim(),
   };
 
   db.prepare(
