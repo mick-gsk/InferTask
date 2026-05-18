@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Kurzer, pr\u00e4ziser Titel der Aufgabe"
+    },
+    "deadline": {
+      "type": ["string", "null"],
+      "description": "F\u00e4lligkeitsdatum im ISO-8601-Format (YYYY-MM-DD) oder null wenn kein Datum genannt"
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["low", "medium", "high"],
+      "description": "Priorit\u00e4t der Aufgabe abgeleitet aus dem Freitext"
+    },
+    "category": {
+      "type": "string",
+      "description": "Thematische Kategorie, z.B. Gesundheit, Finanzen, Arbeit, Privat"
+    }
+  },
+  "required": ["title", "deadline", "priority", "category"],
+  "additionalProperties": false
+}
