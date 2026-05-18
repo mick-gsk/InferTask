@@ -38,10 +38,11 @@ document.getElementById("save-task-btn").addEventListener("click", function () {
 function addTask(title, description, completed = false) {
   const id = generateId();
   tasks.push({
+    id: id,
     title: title,
     description: description,
     completed: completed,
-    id: id,
+    createdAt: new Date().toISOString(),
   });
   const taskItem = document.createElement("div");
   taskItem.className = "task-item";
@@ -75,7 +76,6 @@ function addTask(title, description, completed = false) {
 
   checkButton.addEventListener("click", function () {
     moveToCompleted(taskItem, checkButton, deleteButton);
-    saveTasks();
   });
 
   taskContent.appendChild(taskTitleEl);
@@ -109,12 +109,20 @@ function saveTasks() {
 }
 
 function loadTasks() {
-  const rawTasks = localStorage.getItem("infertask-tasks");
-  if (!rawTasks) return;
-  const savedTasks = JSON.parse(rawTasks);
-  savedTasks.forEach(function (task) {
-    addTask(task.title, task.description, task.completed);
-  });
+  try {
+    const raw = localStorage.getItem("infertask-tasks");
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    if (!Array.isArray(saved)) return;
+    saved.forEach(function (task) {
+      if (typeof task.title === "string" && task.title.trim() !== "") {
+        addTask(task.title, task.description ?? "", task.completed === true);
+      }
+    });
+  } catch {
+    console.warn("[InferTask] localStorage corrupt – resetting.");
+    localStorage.removeItem("infertask-tasks");
+  }
 }
 
 loadTasks();
