@@ -1,13 +1,17 @@
+import { saveTasks, loadTasksFromStorage } from "./storage.js";
+
 const taskList = document.getElementById("task-list");
 const completedList = document.getElementById("completed-list");
 const modal = document.getElementById("task-modal");
 const modalTitle = document.getElementById("modal-task-title");
 const modalDescription = document.getElementById("modal-task-description");
+
+/** Zentraler In-Memory-State. Wird durch die API später ersetzt. */
 const tasks = [];
 
-function generateId() {
-  return crypto.randomUUID();
-}
+// ---------------------------------------------------------------------------
+// Modal
+// ---------------------------------------------------------------------------
 
 function openModal() {
   modal.classList.remove("hidden");
@@ -21,9 +25,7 @@ function closeModal() {
 }
 
 document.getElementById("new-task-btn").addEventListener("click", openModal);
-document
-  .getElementById("cancel-task-btn")
-  .addEventListener("click", closeModal);
+document.getElementById("cancel-task-btn").addEventListener("click", closeModal);
 document.getElementById("modal-overlay").addEventListener("click", closeModal);
 
 document.getElementById("save-task-btn").addEventListener("click", function () {
@@ -31,22 +33,42 @@ document.getElementById("save-task-btn").addEventListener("click", function () {
   if (title === "") return;
   const description = modalDescription.value.trim();
   addTask(title, description);
-  saveTasks();
+  saveTasks(tasks);
   closeModal();
 });
 
-function addTask(title, description, completed = false) {
-  const id = generateId();
-  tasks.push({
-    id: id,
+// ---------------------------------------------------------------------------
+// Task-Logik
+// ---------------------------------------------------------------------------
+
+/**
+ * Erzeugt ein reines Task-Datenobjekt ohne DOM-Zugriff.
+ * Entspricht dem gemeinsamen Task-Interface aus backend/src/types.ts.
+ * @param {string} title
+ * @param {string} description
+ * @param {boolean} completed
+ * @returns {Object}
+ */
+function createTaskObject(title, description, completed) {
+  return {
+    id: crypto.randomUUID(),
     title: title,
-    description: description,
-    completed: completed,
+    description: description ?? "",
+    completed: completed === true,
     createdAt: new Date().toISOString(),
-  });
+  };
+}
+
+/**
+ * Baut das DOM-Element für einen Task.
+ * Hat keinen Zugriff auf den globalen tasks[]-State.
+ * @param {Object} task
+ * @returns {HTMLElement}
+ */
+function renderTask(task) {
   const taskItem = document.createElement("div");
   taskItem.className = "task-item";
-  taskItem.setAttribute("data-id", id);
+  taskItem.setAttribute("data-id", task.id);
 
   const checkButton = document.createElement("button");
   checkButton.className = "check-circle";
@@ -56,10 +78,10 @@ function addTask(title, description, completed = false) {
   taskContent.className = "task-content";
 
   const taskTitleEl = document.createElement("h2");
-  taskTitleEl.textContent = title;
+  taskTitleEl.textContent = task.title;
 
   const taskDescEl = document.createElement("p");
-  taskDescEl.textContent = description || "";
+  taskDescEl.textContent = task.description || "";
 
   const deleteButton = document.createElement("button");
   deleteButton.className = "delete-btn";
@@ -67,15 +89,14 @@ function addTask(title, description, completed = false) {
   deleteButton.textContent = "×";
 
   deleteButton.addEventListener("click", function () {
-    const taskId = taskItem.getAttribute("data-id");
-    const taskIndex = tasks.findIndex((t) => t.id === taskId);
-    if (taskIndex !== -1) tasks.splice(taskIndex, 1);
+    const index = tasks.findIndex((t) => t.id === task.id);
+    if (index !== -1) tasks.splice(index, 1);
     taskItem.remove();
-    saveTasks();
+    saveTasks(tasks);
   });
 
   checkButton.addEventListener("click", function () {
-    moveToCompleted(taskItem, checkButton, deleteButton);
+    moveToCompleted(task, taskItem, checkButton, deleteButton);
   });
 
   taskContent.appendChild(taskTitleEl);
@@ -83,46 +104,51 @@ function addTask(title, description, completed = false) {
   taskItem.appendChild(checkButton);
   taskItem.appendChild(taskContent);
   taskItem.appendChild(deleteButton);
-  if (completed) {
+
+  if (task.completed) {
     taskItem.classList.add("completed");
     checkButton.classList.add("done");
-    completedList.appendChild(taskItem);
-  } else {
-    taskList.appendChild(taskItem);
+    deleteButton.remove();
   }
+
+  return taskItem;
 }
 
-function moveToCompleted(taskItem, checkButton, deleteButton) {
-  const taskId = taskItem.getAttribute("data-id");
-  const task = tasks.find((t) => t.id === taskId);
-  if (task) task.completed = true;
+/**
+ * Erstellt Task-Objekt, registriert es im State und hängt das DOM-Element ein.
+ * @param {string} title
+ * @param {string} description
+ * @param {boolean} completed
+ */
+function addTask(title, description, completed = false) {
+  const task = createTaskObject(title, description, completed);
+  tasks.push(task);
+  const el = renderTask(task);
+  (completed ? completedList : taskList).appendChild(el);
+}
+
+/**
+ * Markiert einen Task als erledigt: aktualisiert State, DOM und Persistenz.
+ * @param {Object} task
+ * @param {HTMLElement} taskItem
+ * @param {HTMLElement} checkButton
+ * @param {HTMLElement} deleteButton
+ */
+function moveToCompleted(task, taskItem, checkButton, deleteButton) {
+  const stateTask = tasks.find((t) => t.id === task.id);
+  if (stateTask) stateTask.completed = true;
   taskItem.classList.add("completed");
   checkButton.classList.add("done");
   checkButton.setAttribute("aria-label", "Erledigte Aufgabe");
   deleteButton.remove();
   completedList.appendChild(taskItem);
-  saveTasks();
+  saveTasks(tasks);
 }
 
-function saveTasks() {
-  localStorage.setItem("infertask-tasks", JSON.stringify(tasks));
-}
+// ---------------------------------------------------------------------------
+// Initialisierung
+// ---------------------------------------------------------------------------
 
-function loadTasks() {
-  try {
-    const raw = localStorage.getItem("infertask-tasks");
-    if (!raw) return;
-    const saved = JSON.parse(raw);
-    if (!Array.isArray(saved)) return;
-    saved.forEach(function (task) {
-      if (typeof task.title === "string" && task.title.trim() !== "") {
-        addTask(task.title, task.description ?? "", task.completed === true);
-      }
-    });
-  } catch {
-    console.warn("[InferTask] localStorage corrupt – resetting.");
-    localStorage.removeItem("infertask-tasks");
-  }
-}
-
-loadTasks();
+loadTasksFromStorage().forEach(function (task) {
+  addTask(task.title, task.description, task.completed);
+});
