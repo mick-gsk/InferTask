@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import tasksRouter from "./routes/tasks.js";
 import inferRouter from "./routes/infer.js";
+import intentRouter from "./routes/intent.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -14,6 +15,7 @@ app.use(
 app.use(express.json());
 app.use("/api/tasks", tasksRouter);
 app.use("/api/infer", inferRouter);
+app.use("/api/intent", intentRouter);
 
 app.get("/", function (_req: Request, res: Response) {
   res.send("InferTask API running");
