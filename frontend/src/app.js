@@ -1,12 +1,19 @@
 import { saveTasks, loadTasksFromStorage } from "./storage.js";
+import { intentTask } from "./api.js";
 
 const taskList = document.getElementById("task-list");
 const completedList = document.getElementById("completed-list");
 const modal = document.getElementById("task-modal");
 const modalTitle = document.getElementById("modal-task-title");
 const modalDescription = document.getElementById("modal-task-description");
+const llmToggle = document.getElementById("llm-mode-toggle");
+const manualInputs = document.getElementById("manual-inputs");
+const llmInputs = document.getElementById("llm-inputs");
+const llmFreetext = document.getElementById("llm-freetext");
+const modalError = document.getElementById("modal-error");
+const saveBtn = document.getElementById("save-task-btn");
 
-/** Zentraler In-Memory-State. Wird durch die API später ersetzt. */
+/** Zentraler In-Memory-State. */
 const tasks = [];
 
 // ---------------------------------------------------------------------------
@@ -15,6 +22,7 @@ const tasks = [];
 
 function openModal() {
   modal.classList.remove("hidden");
+  hideModalError();
   modalTitle.focus();
 }
 
@@ -22,33 +30,73 @@ function closeModal() {
   modal.classList.add("hidden");
   modalTitle.value = "";
   modalDescription.value = "";
+  llmFreetext.value = "";
+  llmToggle.checked = false;
+  manualInputs.classList.remove("hidden");
+  llmInputs.classList.add("hidden");
+  hideModalError();
+}
+
+function showModalError(msg) {
+  modalError.textContent = msg;
+  modalError.classList.remove("hidden");
+}
+
+function hideModalError() {
+  modalError.textContent = "";
+  modalError.classList.add("hidden");
 }
 
 document.getElementById("new-task-btn").addEventListener("click", openModal);
 document.getElementById("cancel-task-btn").addEventListener("click", closeModal);
 document.getElementById("modal-overlay").addEventListener("click", closeModal);
 
-document.getElementById("save-task-btn").addEventListener("click", function () {
-  const title = modalTitle.value.trim();
-  if (title === "") return;
-  const description = modalDescription.value.trim();
-  addTask(title, description);
-  saveTasks(tasks);
-  closeModal();
+// LLM-Toggle schaltet zwischen Modus-Bereichen um
+llmToggle.addEventListener("change", function () {
+  if (llmToggle.checked) {
+    manualInputs.classList.add("hidden");
+    llmInputs.classList.remove("hidden");
+    llmFreetext.focus();
+  } else {
+    manualInputs.classList.remove("hidden");
+    llmInputs.classList.add("hidden");
+    modalTitle.focus();
+  }
+  hideModalError();
+});
+
+saveBtn.addEventListener("click", async function () {
+  hideModalError();
+
+  if (llmToggle.checked) {
+    // --- LLM-Modus ---
+    const text = llmFreetext.value.trim();
+    if (text === "") return;
+    saveBtn.disabled = true;
+    saveBtn.textContent = "Analysiere...";
+    const task = await intentTask(text);
+    saveBtn.disabled = false;
+    saveBtn.textContent = "Speichern";
+    if (!task) {
+      showModalError("KI nicht erreichbar. Läuft Ollama?");
+      return;
+    }
+    addTaskFromApi(task);
+    closeModal();
+  } else {
+    // --- Manueller Modus ---
+    const title = modalTitle.value.trim();
+    if (title === "") return;
+    addTask(title, modalDescription.value.trim());
+    saveTasks(tasks);
+    closeModal();
+  }
 });
 
 // ---------------------------------------------------------------------------
 // Task-Logik
 // ---------------------------------------------------------------------------
 
-/**
- * Erzeugt ein reines Task-Datenobjekt ohne DOM-Zugriff.
- * Entspricht dem gemeinsamen Task-Interface aus backend/src/types.ts.
- * @param {string} title
- * @param {string} description
- * @param {boolean} completed
- * @returns {Object}
- */
 function createTaskObject(title, description, completed) {
   return {
     id: crypto.randomUUID(),
@@ -59,12 +107,6 @@ function createTaskObject(title, description, completed) {
   };
 }
 
-/**
- * Baut das DOM-Element für einen Task.
- * Hat keinen Zugriff auf den globalen tasks[]-State.
- * @param {Object} task
- * @returns {HTMLElement}
- */
 function renderTask(task) {
   const taskItem = document.createElement("div");
   taskItem.className = "task-item";
@@ -114,12 +156,6 @@ function renderTask(task) {
   return taskItem;
 }
 
-/**
- * Erstellt Task-Objekt, registriert es im State und hängt das DOM-Element ein.
- * @param {string} title
- * @param {string} description
- * @param {boolean} completed
- */
 function addTask(title, description, completed = false) {
   const task = createTaskObject(title, description, completed);
   tasks.push(task);
@@ -128,12 +164,14 @@ function addTask(title, description, completed = false) {
 }
 
 /**
- * Markiert einen Task als erledigt: aktualisiert State, DOM und Persistenz.
- * @param {Object} task
- * @param {HTMLElement} taskItem
- * @param {HTMLElement} checkButton
- * @param {HTMLElement} deleteButton
+ * Fügt einen Task hinzu der direkt vom Backend/API kommt (kein createTaskObject).
+ * @param {Object} task - Vollständiges Task-Objekt mit id, title, createdAt etc.
  */
+function addTaskFromApi(task) {
+  tasks.push(task);
+  taskList.appendChild(renderTask(task));
+}
+
 function moveToCompleted(task, taskItem, checkButton, deleteButton) {
   const stateTask = tasks.find((t) => t.id === task.id);
   if (stateTask) stateTask.completed = true;

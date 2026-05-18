@@ -45,10 +45,31 @@
     <div class="modal-overlay" id="modal-overlay"></div>
     <div class="modal-content">
         <h2>Neue Aufgabe</h2>
-        <label for="modal-task-title">Titel</label>
-        <input id="modal-task-title" type="text" placeholder="Titel der Aufgabe"/>
-        <label for="modal-task-description">Beschreibung</label>
-        <textarea id="modal-task-description" placeholder="Beschreibung hinzufügen"></textarea>
+
+        <!-- LLM-Modus Toggle -->
+        <div class="llm-toggle">
+          <label>
+            <input type="checkbox" id="llm-mode-toggle" />
+            KI-Modus (Freitext)
+          </label>
+        </div>
+
+        <!-- Manueller Modus -->
+        <div id="manual-inputs">
+          <label for="modal-task-title">Titel</label>
+          <input id="modal-task-title" type="text" placeholder="Titel der Aufgabe"/>
+          <label for="modal-task-description">Beschreibung</label>
+          <textarea id="modal-task-description" placeholder="Beschreibung hinzufügen"></textarea>
+        </div>
+
+        <!-- LLM-Modus -->
+        <div id="llm-inputs" class="hidden">
+          <label for="llm-freetext">Beschreibe deine Aufgabe</label>
+          <textarea id="llm-freetext" placeholder="z.B. Morgen Zahnarzt anrufen, dringend"></textarea>
+        </div>
+
+        <p id="modal-error" class="modal-error hidden"></p>
+
         <div class="modal-actions">
             <button id="cancel-task-btn" type="button">Abbrechen</button>
             <button id="save-task-btn" type="button">Speichern</button>
