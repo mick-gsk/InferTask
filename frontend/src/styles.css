@@ -156,10 +156,46 @@ body {
   font-size: 1rem;
 }
 
+.task-content h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
 .task-content p {
   margin: 0;
   color: #9aa0a6;
   font-size: 0.92rem;
+}
+
+.task-progress {
+  margin-top: 8px !important;
+  font-size: 0.85rem !important;
+}
+
+.subtasks-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.subtask-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding-left: 1.5rem;
+}
+
+.subtask-item.completed .task-content h3 {
+  text-decoration: line-through;
+  color: #9aa0a6;
+}
+
+.subtask-check {
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
 }
 
 .delete-btn {
