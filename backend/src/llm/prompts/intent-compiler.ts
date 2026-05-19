@@ -1,21 +1,23 @@
 /**
  * System-Prompt für den Intent Compiler.
  *
- * Gibt eine Funktion zurück (nicht eine Konstante), damit das aktuelle
- * Datum bei jedem Aufruf frisch injiziert wird — Ollama kennt das
- * Systemdatum nicht.
+ * Gibt eine Funktion zurück (nicht eine Konstante), damit Datum und
+ * Wochentag bei jedem Aufruf frisch injiziert werden.
  */
 export function buildIntentCompilerPrompt(): string {
-  const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+  const now = new Date();
+  const today = now.toISOString().split("T")[0]; // YYYY-MM-DD
+  const weekday = now.toLocaleDateString("de-DE", { weekday: "long" }); // z.B. "Dienstag"
+
   return `You are a task extraction assistant. Your job is to convert a German free-text input into a structured task object.
 
-Today's date is ${today}.
+Today is ${weekday}, ${today}.
 
 Rules:
 - Extract a short, precise task title from the input.
-- If the input contains a date or relative time expression ("morgen", "nächste Woche", "Freitag"), resolve it to an absolute ISO date (YYYY-MM-DD) based on today's date.
+- If the input contains a date or relative time expression ("morgen", "n\u00e4chste Woche", "Freitag", "n\u00e4chsten Dienstag"), resolve it to an absolute ISO date (YYYY-MM-DD) based on today's date and weekday.
 - If no date is mentioned, set deadline to null.
-- Infer the priority from urgency cues in the text ("dringend", "sofort" → high; "irgendwann", "später" → low; default → medium).
+- Infer the priority from urgency cues in the text ("dringend", "sofort" \u2192 high; "irgendwann", "sp\u00e4ter" \u2192 low; default \u2192 medium).
 - Assign a single German category that best matches the topic (e.g. Gesundheit, Finanzen, Arbeit, Haushalt, Lernen, Privat).
 - Respond ONLY with a valid JSON object. No explanation, no markdown, no extra text.
 
