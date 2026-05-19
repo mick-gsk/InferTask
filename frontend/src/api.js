@@ -22,6 +22,17 @@ export async function loadTasksFromApi() {
   }
 }
 
+export async function loadSubtasks(taskId) {
+  try {
+    const res = await fetch(`${API_BASE}/tasks/${taskId}/subtasks`);
+    if (!res.ok) return null;
+    return res.json();
+  } catch (e) {
+    console.error("[api] loadSubtasks:", e);
+    return null;
+  }
+}
+
 /**
  * Legt einen neuen Task manuell an.
  * @param {string} title
@@ -83,6 +94,19 @@ export async function completeTask(id) {
     return res.json();
   } catch (e) {
     console.error("[api] completeTask:", e);
+    return null;
+  }
+}
+
+export async function completeSubtask(taskId, subtaskId) {
+  try {
+    const res = await fetch(`${API_BASE}/tasks/${taskId}/subtasks/${subtaskId}`, {
+      method: "PATCH",
+    });
+    if (!res.ok) return null;
+    return res.json();
+  } catch (e) {
+    console.error("[api] completeSubtask:", e);
     return null;
   }
 }

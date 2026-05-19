@@ -1,5 +1,13 @@
 import { saveTasks, loadTasksFromStorage } from "./storage.js";
-import { intentTask } from "./api.js";
+import {
+  intentTask,
+  loadTasksFromApi,
+  loadSubtasks,
+  completeTask,
+  completeSubtask,
+  createTask,
+  deleteTask,
+} from "./api.js";
 
 const taskList = document.getElementById("task-list");
 const completedList = document.getElementById("completed-list");
@@ -14,6 +22,27 @@ const modalError = document.getElementById("modal-error");
 const saveBtn = document.getElementById("save-task-btn");
 
 const tasks = [];
+
+function countCompletedSubtasks(subtasks) {
+  return subtasks.filter((subtask) => subtask.completed).length;
+}
+
+function updateProgressText(progressEl, subtasks) {
+  if (!progressEl || subtasks.length === 0) return;
+  progressEl.textContent = `${countCompletedSubtasks(subtasks)} / ${subtasks.length} erledigt`;
+}
+
+function syncParentCompletion(task, taskItem, checkButton, deleteButton) {
+  if (!task.subtasks || task.subtasks.length === 0) return;
+  const allDone = task.subtasks.every((subtask) => subtask.completed === true);
+  if (!allDone || task.completed) return;
+  task.completed = true;
+  taskItem.classList.add("completed");
+  checkButton.classList.add("done");
+  checkButton.setAttribute("aria-label", "Erledigte Aufgabe");
+  deleteButton.remove();
+  completedList.appendChild(taskItem);
+}
 
 // ---------------------------------------------------------------------------
 // Modal
@@ -83,8 +112,12 @@ saveBtn.addEventListener("click", async function () {
   } else {
     const title = modalTitle.value.trim();
     if (title === "") return;
-    addTask(title, modalDescription.value.trim());
-    saveTasks(tasks);
+    const task = await createTask(title, modalDescription.value.trim());
+    if (!task) {
+      showModalError("Task konnte nicht erstellt werden");
+      return;
+    }
+    addTaskFromApi(task);
     closeModal();
   }
 });
@@ -100,7 +133,54 @@ function createTaskObject(title, description, completed) {
     description: description ?? "",
     completed: completed === true,
     createdAt: new Date().toISOString(),
+    subtasks: [],
   };
+}
+
+function renderSubtask(task, subtask, progressEl, parentElements) {
+  const subtaskItem = document.createElement("div");
+  subtaskItem.className = "subtask-item";
+  subtaskItem.setAttribute("data-id", subtask.id);
+
+  const checkButton = document.createElement("button");
+  checkButton.className = "check-circle subtask-check";
+  checkButton.setAttribute("aria-label", "Subtask als erledigt markieren");
+
+  const content = document.createElement("div");
+  content.className = "task-content";
+
+  const titleEl = document.createElement("h3");
+  titleEl.textContent = subtask.title;
+
+  content.appendChild(titleEl);
+  subtaskItem.appendChild(checkButton);
+  subtaskItem.appendChild(content);
+
+  if (subtask.completed) {
+    subtaskItem.classList.add("completed");
+    checkButton.classList.add("done");
+  }
+
+  checkButton.addEventListener("click", async function () {
+    if (subtask.completed) return;
+    const updated = await completeSubtask(task.id, subtask.id);
+    if (!updated) return;
+
+    subtask.completed = true;
+    subtaskItem.classList.add("completed");
+    checkButton.classList.add("done");
+    checkButton.setAttribute("aria-label", "Erledigter Subtask");
+
+    updateProgressText(progressEl, task.subtasks);
+    syncParentCompletion(
+      task,
+      parentElements.taskItem,
+      parentElements.checkButton,
+      parentElements.deleteButton,
+    );
+  });
+
+  return subtaskItem;
 }
 
 function renderTask(task) {
@@ -121,24 +201,37 @@ function renderTask(task) {
   const taskDescEl = document.createElement("p");
   taskDescEl.textContent = task.description || "";
 
+  const progressEl = document.createElement("p");
+  progressEl.className = "task-progress hidden";
+
+  const subtasksContainer = document.createElement("div");
+  subtasksContainer.className = "subtasks-container hidden";
+
   const deleteButton = document.createElement("button");
   deleteButton.className = "delete-btn";
   deleteButton.setAttribute("aria-label", "Aufgabe löschen");
   deleteButton.textContent = "×";
 
-  deleteButton.addEventListener("click", function () {
+  deleteButton.addEventListener("click", async function () {
+    const ok = await deleteTask(task.id);
+    if (!ok) return;
     const index = tasks.findIndex((t) => t.id === task.id);
     if (index !== -1) tasks.splice(index, 1);
     taskItem.remove();
     saveTasks(tasks);
   });
 
-  checkButton.addEventListener("click", function () {
+  checkButton.addEventListener("click", async function () {
+    if (task.completed) return;
+    const updated = await completeTask(task.id);
+    if (!updated) return;
     moveToCompleted(task, taskItem, checkButton, deleteButton);
   });
 
   taskContent.appendChild(taskTitleEl);
   taskContent.appendChild(taskDescEl);
+  taskContent.appendChild(progressEl);
+  taskContent.appendChild(subtasksContainer);
   taskItem.appendChild(checkButton);
   taskItem.appendChild(taskContent);
   taskItem.appendChild(deleteButton);
@@ -148,6 +241,21 @@ function renderTask(task) {
     checkButton.classList.add("done");
     deleteButton.remove();
   }
+
+  loadSubtasks(task.id).then(function (subtasks) {
+    if (!Array.isArray(subtasks) || subtasks.length === 0) return;
+    task.subtasks = subtasks;
+    progressEl.classList.remove("hidden");
+    subtasksContainer.classList.remove("hidden");
+    updateProgressText(progressEl, task.subtasks);
+
+    const parentElements = { taskItem, checkButton, deleteButton };
+    task.subtasks.forEach(function (subtask) {
+      subtasksContainer.appendChild(renderSubtask(task, subtask, progressEl, parentElements));
+    });
+
+    syncParentCompletion(task, taskItem, checkButton, deleteButton);
+  });
 
   return taskItem;
 }
@@ -160,8 +268,9 @@ function addTask(title, description, completed = false) {
 }
 
 function addTaskFromApi(task) {
-  tasks.push(task);
-  taskList.appendChild(renderTask(task));
+  const normalizedTask = { ...task, subtasks: [] };
+  tasks.push(normalizedTask);
+  (normalizedTask.completed ? completedList : taskList).appendChild(renderTask(normalizedTask));
 }
 
 function moveToCompleted(task, taskItem, checkButton, deleteButton) {
@@ -179,6 +288,18 @@ function moveToCompleted(task, taskItem, checkButton, deleteButton) {
 // Initialisierung
 // ---------------------------------------------------------------------------
 
-loadTasksFromStorage().forEach(function (task) {
-  addTask(task.title, task.description, task.completed);
-});
+async function init() {
+  const apiTasks = await loadTasksFromApi();
+  if (Array.isArray(apiTasks)) {
+    apiTasks.forEach(function (task) {
+      addTaskFromApi(task);
+    });
+    return;
+  }
+
+  loadTasksFromStorage().forEach(function (task) {
+    addTask(task.title, task.description, task.completed);
+  });
+}
+
+init();
