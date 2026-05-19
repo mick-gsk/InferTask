@@ -40,7 +40,7 @@ router.get("/", function (_req: Request, res: Response) {
 
 router.get("/:id/subtasks", function (req: Request, res: Response) {
   const taskRow = db.prepare("SELECT id FROM tasks WHERE id = ?").get(req.params.id) as Record<string, unknown> | undefined;
-  if (!taskRow) return res.status(404).json({ error: "Not found" });
+  if (!taskRow) return res.status(404).json({ error: "Task nicht gefunden" });
 
   const rows = db
     .prepare("SELECT id, taskId, title, ord, completed FROM subtasks WHERE taskId = ? ORDER BY ord ASC")
