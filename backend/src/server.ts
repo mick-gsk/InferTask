@@ -4,6 +4,7 @@ import tasksRouter from "./routes/tasks.js";
 import inferRouter from "./routes/infer.js";
 import intentRouter from "./routes/intent.js";
 import goalsRouter from "./routes/goals.js";
+import recommendationsRouter from "./routes/recommendations.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -18,6 +19,7 @@ app.use("/api/tasks", tasksRouter);
 app.use("/api/infer", inferRouter);
 app.use("/api/intent", intentRouter);
 app.use("/api/goals", goalsRouter);
+app.use("/api/recommendations", recommendationsRouter);
 
 app.get("/", function (_req: Request, res: Response) {
   res.send("InferTask API running");

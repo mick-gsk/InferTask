@@ -106,6 +106,54 @@ body {
   color: #9aa0a6;
 }
 
+/* Empfehlungs-Panel */
+.recommendations-panel {
+  max-width: 760px;
+  background: #15181d;
+  border: 1px solid #2a2f36;
+  border-radius: 18px;
+  padding: 16px 20px;
+  margin-bottom: 28px;
+}
+
+.recommendations-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.recommendations-header h2 {
+  margin: 0;
+  font-size: 1rem;
+  color: #8ab4f8;
+}
+
+.refresh-btn {
+  border: none;
+  background: #2b313a;
+  color: #c7cbd1;
+  font-size: 0.85rem;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.refresh-btn:hover {
+  background: #353c46;
+}
+
+.recommendations-status {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #9aa0a6;
+}
+
+/* Hervorhebung empfohlener Tasks */
+.task-item.recommended {
+  border-left: 3px solid #8ab4f8;
+}
+
 .task-panel {
   max-width: 760px;
 }

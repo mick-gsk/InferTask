@@ -7,10 +7,6 @@
 
 const API_BASE = "http://localhost:3000/api";
 
-/**
- * Lädt alle Tasks vom Backend.
- * @returns {Promise<Array|null>}
- */
 export async function loadTasksFromApi() {
   try {
     const res = await fetch(`${API_BASE}/tasks`);
@@ -33,12 +29,18 @@ export async function loadSubtasks(taskId) {
   }
 }
 
-/**
- * Legt einen neuen Task manuell an.
- * @param {string} title
- * @param {string} description
- * @returns {Promise<Object|null>}
- */
+export async function loadRecommendations() {
+  try {
+    const res = await fetch(`${API_BASE}/recommendations`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return Array.isArray(data.recommendations) ? data.recommendations : null;
+  } catch (e) {
+    console.error("[api] loadRecommendations:", e);
+    return null;
+  }
+}
+
 export async function createTask(title, description) {
   try {
     const res = await fetch(`${API_BASE}/tasks`, {
@@ -54,11 +56,6 @@ export async function createTask(title, description) {
   }
 }
 
-/**
- * Sendet Freitext an den Intent Compiler.
- * @param {string} text
- * @returns {Promise<{ task: Object|null, error: string|null }>}
- */
 export async function intentTask(text) {
   try {
     const res = await fetch(`${API_BASE}/intent`, {
@@ -82,11 +79,6 @@ export async function intentTask(text) {
   }
 }
 
-/**
- * Markiert einen Task als erledigt.
- * @param {string} id
- * @returns {Promise<Object|null>}
- */
 export async function completeTask(id) {
   try {
     const res = await fetch(`${API_BASE}/tasks/${id}`, { method: "PATCH" });
@@ -111,11 +103,6 @@ export async function completeSubtask(taskId, subtaskId) {
   }
 }
 
-/**
- * Löscht einen Task.
- * @param {string} id
- * @returns {Promise<boolean>}
- */
 export async function deleteTask(id) {
   try {
     const res = await fetch(`${API_BASE}/tasks/${id}`, { method: "DELETE" });

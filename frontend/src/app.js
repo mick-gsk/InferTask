@@ -3,6 +3,7 @@ import {
   intentTask,
   loadTasksFromApi,
   loadSubtasks,
+  loadRecommendations,
   completeTask,
   completeSubtask,
   createTask,
@@ -20,28 +21,46 @@ const llmInputs = document.getElementById("llm-inputs");
 const llmFreetext = document.getElementById("llm-freetext");
 const modalError = document.getElementById("modal-error");
 const saveBtn = document.getElementById("save-task-btn");
+const recommendationsPanel = document.getElementById("recommendations-panel");
+const recommendationsStatus = document.getElementById("recommendations-status");
+const refreshRecommendationsBtn = document.getElementById("refresh-recommendations-btn");
 
 const tasks = [];
+let recommendedIds = [];
 
-function countCompletedSubtasks(subtasks) {
-  return subtasks.filter((subtask) => subtask.completed).length;
+// ---------------------------------------------------------------------------
+// Empfehlungen
+// ---------------------------------------------------------------------------
+
+function applyRecommendations(ids) {
+  recommendedIds = Array.isArray(ids) ? ids : [];
+
+  document.querySelectorAll(".task-item").forEach(function (el) {
+    el.classList.remove("recommended");
+  });
+
+  recommendedIds.forEach(function (id) {
+    const el = document.querySelector(`.task-item[data-id="${id}"]`);
+    if (el) el.classList.add("recommended");
+  });
+
+  if (recommendationsStatus) {
+    if (recommendedIds.length === 0) {
+      recommendationsStatus.textContent = "Keine offenen Aufgaben – alles erledigt!";
+    } else {
+      recommendationsStatus.textContent = `${recommendedIds.length} Aufgabe${recommendedIds.length > 1 ? "n" : ""} für heute empfohlen.`;
+    }
+  }
 }
 
-function updateProgressText(progressEl, subtasks) {
-  if (!progressEl || subtasks.length === 0) return;
-  progressEl.textContent = `${countCompletedSubtasks(subtasks)} / ${subtasks.length} erledigt`;
+async function fetchAndApplyRecommendations() {
+  if (recommendationsStatus) recommendationsStatus.textContent = "Lade Empfehlungen…";
+  const ids = await loadRecommendations();
+  applyRecommendations(ids ?? []);
 }
 
-function syncParentCompletion(task, taskItem, checkButton, deleteButton) {
-  if (!task.subtasks || task.subtasks.length === 0) return;
-  const allDone = task.subtasks.every((subtask) => subtask.completed === true);
-  if (!allDone || task.completed) return;
-  task.completed = true;
-  taskItem.classList.add("completed");
-  checkButton.classList.add("done");
-  checkButton.setAttribute("aria-label", "Erledigte Aufgabe");
-  deleteButton.remove();
-  completedList.appendChild(taskItem);
+if (refreshRecommendationsBtn) {
+  refreshRecommendationsBtn.addEventListener("click", fetchAndApplyRecommendations);
 }
 
 // ---------------------------------------------------------------------------
@@ -126,15 +145,26 @@ saveBtn.addEventListener("click", async function () {
 // Task-Logik
 // ---------------------------------------------------------------------------
 
-function createTaskObject(title, description, completed) {
-  return {
-    id: crypto.randomUUID(),
-    title: title,
-    description: description ?? "",
-    completed: completed === true,
-    createdAt: new Date().toISOString(),
-    subtasks: [],
-  };
+function countCompletedSubtasks(subtasks) {
+  return subtasks.filter((s) => s.completed).length;
+}
+
+function updateProgressText(progressEl, subtasks) {
+  if (!progressEl || subtasks.length === 0) return;
+  progressEl.textContent = `${countCompletedSubtasks(subtasks)} / ${subtasks.length} erledigt`;
+}
+
+function syncParentCompletion(task, taskItem, checkButton, deleteButton) {
+  if (!task.subtasks || task.subtasks.length === 0) return;
+  const allDone = task.subtasks.every((s) => s.completed === true);
+  if (!allDone || task.completed) return;
+  task.completed = true;
+  taskItem.classList.add("completed");
+  taskItem.classList.remove("recommended");
+  checkButton.classList.add("done");
+  checkButton.setAttribute("aria-label", "Erledigte Aufgabe");
+  deleteButton.remove();
+  completedList.appendChild(taskItem);
 }
 
 function renderSubtask(task, subtask, progressEl, parentElements) {
@@ -165,12 +195,10 @@ function renderSubtask(task, subtask, progressEl, parentElements) {
     if (subtask.completed) return;
     const updated = await completeSubtask(task.id, subtask.id);
     if (!updated) return;
-
     subtask.completed = true;
     subtaskItem.classList.add("completed");
     checkButton.classList.add("done");
     checkButton.setAttribute("aria-label", "Erledigter Subtask");
-
     updateProgressText(progressEl, task.subtasks);
     syncParentCompletion(
       task,
@@ -187,6 +215,10 @@ function renderTask(task) {
   const taskItem = document.createElement("div");
   taskItem.className = "task-item";
   taskItem.setAttribute("data-id", task.id);
+
+  if (recommendedIds.includes(task.id)) {
+    taskItem.classList.add("recommended");
+  }
 
   const checkButton = document.createElement("button");
   checkButton.className = "check-circle";
@@ -248,23 +280,14 @@ function renderTask(task) {
     progressEl.classList.remove("hidden");
     subtasksContainer.classList.remove("hidden");
     updateProgressText(progressEl, task.subtasks);
-
     const parentElements = { taskItem, checkButton, deleteButton };
     task.subtasks.forEach(function (subtask) {
       subtasksContainer.appendChild(renderSubtask(task, subtask, progressEl, parentElements));
     });
-
     syncParentCompletion(task, taskItem, checkButton, deleteButton);
   });
 
   return taskItem;
-}
-
-function addTask(title, description, completed = false) {
-  const task = createTaskObject(title, description, completed);
-  tasks.push(task);
-  const el = renderTask(task);
-  (completed ? completedList : taskList).appendChild(el);
 }
 
 function addTaskFromApi(task) {
@@ -277,6 +300,7 @@ function moveToCompleted(task, taskItem, checkButton, deleteButton) {
   const stateTask = tasks.find((t) => t.id === task.id);
   if (stateTask) stateTask.completed = true;
   taskItem.classList.add("completed");
+  taskItem.classList.remove("recommended");
   checkButton.classList.add("done");
   checkButton.setAttribute("aria-label", "Erledigte Aufgabe");
   deleteButton.remove();
@@ -294,12 +318,15 @@ async function init() {
     apiTasks.forEach(function (task) {
       addTaskFromApi(task);
     });
-    return;
+  } else {
+    loadTasksFromStorage().forEach(function (task) {
+      const t = { id: crypto.randomUUID(), ...task, subtasks: [] };
+      tasks.push(t);
+      (t.completed ? completedList : taskList).appendChild(renderTask(t));
+    });
   }
 
-  loadTasksFromStorage().forEach(function (task) {
-    addTask(task.title, task.description, task.completed);
-  });
+  await fetchAndApplyRecommendations();
 }
 
 init();
